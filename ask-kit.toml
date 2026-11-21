@@ -1,0 +1,36 @@
+id = "temet.data"
+name = "data"
+version = "0.1.0"
+min_ask_kit = "0.3.0"
+says = "what is in a data file (CSV, TSV, JSON lines, JSON, gzip of these; Parquet and Excel when duckdb is installed): its columns and types, how many rows, which values a column takes, which rows match a condition, counts and sums by group, how two files differ, which file holds a column or a value; and, when asked, writing a filtered or converted copy"
+keywords = ["csv", "tsv", "jsonl", "ndjson", "json lines", "parquet", "xlsx", "spreadsheet", "data files?", "dataset", "rows?", "columns?", "header", "delimiter", "distinct values", "group by", "how many rows", "duplicate (rows|lines|records)", "export"]
+route_hint = "The contents of a data file (CSV, TSV, JSON lines, a JSON array of records, a spreadsheet-like file) is data; a SQLite file is sqlite; a PostgreSQL database is postgres; source code and configuration files, package.json included, are code"
+cite = "the file, the column, and the row number (_row) or the count the answer rests on"
+instructions = "instructions.md"
+bench = "bench/questions.json"
+acts = ["data.write", "data.sql with a statement that writes (COPY ... TO, CREATE, INSERT; needs duckdb)"]
+
+[[settings]]
+key = "WORKDIR"
+about = "the folder questions are about; by default the folder the agent runs in"
+detect = ["node", "-e", "process.stdout.write(process.cwd())"]
+
+[[sources]]
+kind = "module"
+name = "data"
+module = "data.mjs"
+api = "api.d.ts"
+
+[[actions]]
+name = "files"
+title = "Which data files are in the folder"
+script = "find"
+match = ['(?:what|which) data files (?:are|do we have|are there|exist) (?:here|in (?:this|the) (?:folder|repo|repository|project|directory))', '(?:list|show)(?: me)?(?: all)?(?: the)? data files(?: here| in (?:this|the) (?:folder|repo|repository|project|directory))?']
+expect = '"files"'
+
+[[actions]]
+name = "columns"
+title = "What columns a data file has, and how many rows"
+script = "profile"
+match = ['(?:what|which) columns (?:does|are in|has|do) (?<file>[\w./\\-]+\.(?:csv|tsv|jsonl|ndjson|json)(?:\.gz)?)(?: have| hold)?', 'how many rows (?:does|are in|are there in|has|in) (?<file>[\w./\\-]+\.(?:csv|tsv|jsonl|ndjson|json)(?:\.gz)?)(?: have| hold)?', '(?:profile|describe|summari[sz]e) (?<file>[\w./\\-]+\.(?:csv|tsv|jsonl|ndjson|json)(?:\.gz)?)']
+expect = '"columns"'

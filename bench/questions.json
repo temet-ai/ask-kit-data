@@ -1,0 +1,301 @@
+{
+  "fixture": "bench/fixture holds invented Ankh-Morpork City Watch data: a duty roster (CSV with quoted commas and a newline inside a quoted cell), patrol reports (TSV), incidents (JSON lines with nested objects), the Watch houses (a nested JSON document), arrests (gzipped CSV, semicolon-delimited, one decimal comma) and two payroll exports with a password column. Every question is a shot: a script and its params, no model. Run them from the kit's folder, because relative paths resolve against WORKDIR. Each expectation was checked against the fixture files by hand on 2026-11-20. Model questions (`q`) are still to be added from real sessions.",
+  "questions": [
+    {
+      "id": "files",
+      "do": "find",
+      "params": {
+        "dir": "bench/fixture"
+      },
+      "expect": [
+        "\"count\": 7",
+        "arrests\\.csv\\.gz \\(csv\\.gz, 372 B\\)",
+        "watch\\.json",
+        "patrols\\.tsv \\(tsv",
+        "7 data files under"
+      ]
+    },
+    {
+      "id": "profile-csv-embedded-newline",
+      "do": "profile",
+      "params": {
+        "file": "bench/fixture/roster.csv"
+      },
+      "expect": [
+        "\"rows\": 12",
+        "\"columnCount\": 8",
+        "rank: string, 6 distinct, 0 empty, max length 15; top: Sergeant \\(4\\) \\| Constable \\(3\\)",
+        "joined: date, 11 distinct, 0 empty, min 1960-01-10, max 2005-10-01",
+        "12 rows, 8 columns"
+      ]
+    },
+    {
+      "id": "profile-redacts-password",
+      "do": "profile",
+      "params": {
+        "file": "bench/fixture/payroll-may.csv"
+      },
+      "expect": [
+        "password: string, 7 distinct, 1 empty, redacted\"",
+        "redacted, because the name looks like a credential: password",
+        "pay_dollars: number, 6 distinct, 0 empty, min 25, max 120, mean 49\\.8125",
+        "^(?![\\s\\S]*(thunder|bridge2|full-moon|arsenic-33))"
+      ]
+    },
+    {
+      "id": "profile-nested-json-path",
+      "do": "profile",
+      "params": {
+        "file": "bench/fixture/watch.json"
+      },
+      "expect": [
+        "\"path\": \"watch\\.houses\"",
+        "largest array of objects",
+        "guilds \\(2\\)",
+        "\"rows\": 4",
+        "officers: integer, 4 distinct \\(every value once\\), 0 empty, min 0, max 31, mean 14\\.5",
+        "^(?![\\s\\S]*not-a-real-token)"
+      ]
+    },
+    {
+      "id": "profile-gzip-semicolon",
+      "do": "profile",
+      "params": {
+        "file": "bench/fixture/arrests.csv.gz",
+        "columns": "fine_dollars,paid"
+      },
+      "expect": [
+        "\"format\": \"csv\\.gz\"",
+        "\"delimiter\": \";\"",
+        "\"rows\": 10",
+        "fine_dollars: mixed \\(8 integer, 1 string\\), 6 distinct, 1 empty",
+        "paid: boolean, 2 distinct, 0 empty; top: true \\(5\\) \\| false \\(5\\)"
+      ]
+    },
+    {
+      "id": "rows-night-sergeants",
+      "do": "rows",
+      "params": {
+        "file": "bench/fixture/roster.csv",
+        "where": {
+          "shift": "night",
+          "rank": "Sergeant"
+        },
+        "select": "name,post"
+      },
+      "expect": [
+        "\"count\": 2",
+        "Angua von Uberwald",
+        "Detritus",
+        "2 of 12 rows match"
+      ]
+    },
+    {
+      "id": "rows-quoted-newline-cell",
+      "do": "rows",
+      "params": {
+        "file": "roster",
+        "where": {
+          "name": {
+            "contains": "nobby"
+          }
+        },
+        "select": "badge,notes"
+      },
+      "expect": [
+        "matched bench/fixture/roster\\.csv",
+        "\"badge\": \"13\"",
+        "human\\.\\\\nChecks door handles, and the till\\."
+      ]
+    },
+    {
+      "id": "rows-sort-limit-tsv",
+      "do": "rows",
+      "params": {
+        "file": "bench/fixture/patrols.tsv",
+        "where": {
+          "arrests": {
+            "gte": 2
+          }
+        },
+        "sort": "-arrests",
+        "limit": 2,
+        "select": "patrol,officer,arrests"
+      },
+      "expect": [
+        "\"count\": 4",
+        "\"leftOut\": 2",
+        "WATCH-11[\\s\\S]*WATCH-9"
+      ]
+    },
+    {
+      "id": "rows-jsonl-nested-column",
+      "do": "rows",
+      "params": {
+        "file": "bench/fixture/incidents.jsonl",
+        "where": {
+          "place.district": "The Shades",
+          "resolved": false
+        },
+        "select": "id,kind,place.street"
+      },
+      "expect": [
+        "\"count\": 2",
+        "INC-3",
+        "INC-8",
+        "Cockbill Street"
+      ]
+    },
+    {
+      "id": "rows-password-shown-redacted",
+      "do": "rows",
+      "params": {
+        "file": "bench/fixture/payroll-april.csv",
+        "where": {
+          "pay_dollars": 38.5
+        }
+      },
+      "expect": [
+        "\"count\": 3",
+        "\"password\": \"<redacted>\"",
+        "^(?![\\s\\S]*(bridge1|full-moon|\"rock\"))"
+      ]
+    },
+    {
+      "id": "group-arrests-by-district",
+      "do": "group",
+      "params": {
+        "file": "bench/fixture/patrols.tsv",
+        "by": "district",
+        "sum": "arrests,incidents",
+        "avg": "hours"
+      },
+      "expect": [
+        "\"total\": 12",
+        "\"groups\": 3",
+        "\"district\": \"The Shades\",\\s*\"count\": 6,\\s*\"sum_arrests\": 12,\\s*\"sum_incidents\": 18",
+        "\"avg_hours\": 9\\.5833"
+      ]
+    },
+    {
+      "id": "group-sum-leaves-out-decimal-comma",
+      "do": "group",
+      "params": {
+        "file": "bench/fixture/arrests.csv.gz",
+        "by": "officer",
+        "sum": "fine_dollars",
+        "sort": "sum:fine_dollars"
+      },
+      "expect": [
+        "\"officer\": \"Cheery Littlebottom\",\\s*\"count\": 3,\\s*\"sum_fine_dollars\": 840",
+        "\"officer\": \"Angua von Uberwald\",\\s*\"count\": 3,\\s*\"sum_fine_dollars\": 6",
+        "not written as numbers and left out of its sums: 1"
+      ]
+    },
+    {
+      "id": "group-incidents-per-day",
+      "do": "group",
+      "params": {
+        "file": "bench/fixture/incidents.jsonl",
+        "by": "at",
+        "bucket": {
+          "at": "day"
+        },
+        "sort": "key"
+      },
+      "expect": [
+        "\"groups\": 5",
+        "\"at\": \"1998-05-03\",\\s*\"count\": 3"
+      ]
+    },
+    {
+      "id": "values-species",
+      "do": "values",
+      "params": {
+        "file": "bench/fixture/roster.csv",
+        "column": "Species"
+      },
+      "expect": [
+        "column \\\\\"Species\\\\\" is species",
+        "\"distinct\": 8",
+        "\"value\": \"human\",\\s*\"count\": 4",
+        "werewolf"
+      ]
+    },
+    {
+      "id": "diff-payroll-by-badge",
+      "do": "diff",
+      "params": {
+        "a": "bench/fixture/payroll-april.csv",
+        "b": "bench/fixture/payroll-may.csv",
+        "key": "badge",
+        "ignore": "paid_on"
+      },
+      "expect": [
+        "\"added\": 2",
+        "\"removed\": 1",
+        "\"changed\": 3",
+        "\"unchanged\": 3",
+        "\"from\": \"38\\.50\",\\s*\"to\": \"42\\.00\"",
+        "Reg Shoe",
+        "<redacted> \\(changed\\)",
+        "^(?![\\s\\S]*(bridge1|bridge2|arsenic-33|undead-rights))"
+      ]
+    },
+    {
+      "id": "find-value-across-files",
+      "do": "find",
+      "params": {
+        "value": "carcer",
+        "dir": "bench/fixture"
+      },
+      "expect": [
+        "arrests\\.csv\\.gz",
+        "incidents\\.jsonl",
+        "\"suspect\": 1",
+        "2 of 7 data files"
+      ]
+    },
+    {
+      "id": "find-column",
+      "do": "find",
+      "params": {
+        "column": "badge",
+        "dir": "bench/fixture"
+      },
+      "expect": [
+        "payroll-april\\.csv",
+        "payroll-may\\.csv",
+        "roster\\.csv",
+        "3 of 7 data files"
+      ]
+    },
+    {
+      "id": "missing-file-names-what-exists",
+      "do": "profile",
+      "params": {
+        "file": "bench/fixture/rota.csv"
+      },
+      "expect": [
+        "\"error\": \"no file bench/fixture/rota\\.csv",
+        "bench/fixture/roster\\.csv"
+      ]
+    },
+    {
+      "id": "convert-refuses-existing-file",
+      "do": "convert",
+      "params": {
+        "from": "bench/fixture/roster.csv",
+        "to": "bench/fixture/payroll-may.csv",
+        "where": {
+          "shift": "night"
+        }
+      },
+      "expect": [
+        "\"written\": false",
+        "payroll-may\\.csv exists already",
+        "overwrite: true"
+      ]
+    }
+  ]
+}

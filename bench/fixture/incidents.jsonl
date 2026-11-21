@@ -1,0 +1,10 @@
+{"id":"INC-1","at":"1998-05-01T23:10:00Z","patrol":"WATCH-2","kind":"theft","severity":2,"resolved":true,"place":{"street":"Elm Street","district":"The Shades"},"suspects":["Done It Duncan"]}
+{"id":"INC-2","at":"1998-05-01T23:55:00Z","patrol":"WATCH-2","kind":"theft","severity":1,"resolved":true,"place":{"street":"Treacle Mine Road","district":"The Shades"},"suspects":[]}
+{"id":"INC-3","at":"1998-05-02T01:20:00Z","patrol":"WATCH-2","kind":"affray","severity":3,"resolved":false,"place":{"street":"Elm Street","district":"The Shades"}}
+{"id":"INC-4","at":"1998-05-02T22:05:00Z","patrol":"WATCH-3","kind":"affray","severity":2,"resolved":true,"place":{"street":"Quarry Lane","district":"Dolly Sisters"}}
+{"id":"INC-5","at":"1998-05-03T14:00:00Z","patrol":"WATCH-5","kind":"disturbance","severity":1,"resolved":true,"place":{"street":"Pellicool Steps","district":"Dolly Sisters"}}
+{"id":"INC-6","at":"1998-05-03T14:30:00Z","patrol":"WATCH-5","kind":"disturbance","severity":1,"resolved":true,"place":{"street":"Pellicool Steps","district":"Dolly Sisters"}}
+{"id":"INC-7","at":"1998-05-03T23:45:00Z","patrol":"WATCH-6","kind":"theft","severity":2,"resolved":true,"place":{"street":"Elm Street","district":"The Shades"},"suspects":["Coffin Henry"]}
+{"id":"INC-8","at":"1998-05-05T20:15:00Z","patrol":"WATCH-9","kind":"poisoning","severity":5,"resolved":false,"place":{"street":"Cockbill Street","district":"The Shades"},"note":"arsenic in the candles"}
+{"id":"INC-9","at":"1998-05-06T21:00:00Z","patrol":"WATCH-11","kind":"affray","severity":4,"resolved":true,"place":{"street":"Treacle Mine Road","district":"The Shades"}}
+{"id":"INC-10","at":"1998-05-06T23:30:00Z","patrol":"WATCH-12","kind":"murder","severity":5,"resolved":true,"place":{"street":"Cockbill Street","district":"The Shades"},"suspects":["Carcer"]}

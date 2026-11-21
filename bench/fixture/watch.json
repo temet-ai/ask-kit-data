@@ -1,0 +1,18 @@
+{
+  "city": "Ankh-Morpork",
+  "watch": {
+    "commander": "Sam Vimes",
+    "motto": "Fabricati Diem, Pvnc",
+    "relay": { "host": "clacks.example.com", "token": "kjh2-not-a-real-token-88" },
+    "houses": [
+      { "name": "Pseudopolis Yard", "district": "Isle of Gods", "officers": 31, "cells": 12, "open": true,
+        "duty": [ { "shift": "day", "sergeant": "Cheery Littlebottom" }, { "shift": "night", "sergeant": "Fred Colon" } ] },
+      { "name": "Cable Street", "district": "The Shades", "officers": 18, "cells": 6, "open": true,
+        "duty": [ { "shift": "night", "sergeant": "Angua von Uberwald" } ] },
+      { "name": "Dolly Sisters", "district": "Dolly Sisters", "officers": 9, "cells": 4, "open": true,
+        "duty": [ { "shift": "night", "sergeant": "Detritus" } ] },
+      { "name": "Treacle Mine Road", "district": "The Shades", "officers": 0, "cells": 2, "open": false, "duty": [] }
+    ]
+  },
+  "guilds": [ { "name": "Thieves", "licensed": true }, { "name": "Assassins", "licensed": true } ]
+}
