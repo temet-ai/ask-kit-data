@@ -23,9 +23,10 @@ export default async function ({ data }, { file, where, select, sort, limit, cou
   if (r.count === 0 && where && typeof where === "object") {
     // Nothing matched: look for the value in another spelling, so the caller does not have to ask again.
     const near = {};
-    for (const [col, want] of Object.entries(where)) {
-      if (typeof want !== "string" || !want.trim()) continue;
-      const v = await data.values(file, col, { top: 500, delimiter, header, path }).catch(() => null);
+    const cols = Object.entries(where).filter(([, want]) => typeof want === "string" && want.trim());
+    const seen = await Promise.all(cols.map(([col]) => data.values(file, col, { top: 500, delimiter, header, path }).catch(() => null)));
+    for (const [i, [col, want]] of cols.entries()) {
+      const v = seen[i];
       if ((v?.values ?? []).some((x) => x.value === want)) continue;
       const w = want.trim().toLowerCase();
       const hits = (v?.values ?? []).filter((x) => typeof x.value === "string" && x.value !== "<redacted>" && (x.value.trim().toLowerCase() === w || x.value.toLowerCase().includes(w))).slice(0, 5);
